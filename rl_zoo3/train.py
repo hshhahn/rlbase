@@ -147,7 +147,7 @@ def train() -> None:
     parser.add_argument(
         "--track",
         action="store_true",
-        default=False,
+        default=True,
         help="if toggled, this experiment will be tracked with Weights and Biases",
     )
     parser.add_argument("--wandb-project-name", type=str, default="sb3", help="the wandb's project name")
@@ -156,7 +156,7 @@ def train() -> None:
         "-P",
         "--progress",
         action="store_true",
-        default=False,
+        default=True,
         help="if toggled, display a progress bar using tqdm and rich",
     )
     parser.add_argument(
