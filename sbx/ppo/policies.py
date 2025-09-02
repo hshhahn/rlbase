@@ -5,6 +5,7 @@ from typing import Any, Callable, Optional, Union
 import flax.linen as nn
 import gymnasium as gym
 import jax
+import jax.nn as jnn
 import jax.numpy as jnp
 import numpy as np
 import optax
@@ -148,6 +149,11 @@ class PPOPolicy(BaseJaxPolicy):
         )
         self.log_std_init = log_std_init
         self.activation_fn = activation_fn
+
+        if isinstance(activation_fn, type):  # e.g., torch.nn.ReLU
+            name = activation_fn.__name__.lower()
+            activation_fn = {"relu": jnn.relu, "tanh": jnn.tanh, "gelu": jnn.gelu}.get(name, jnn.relu)
+        self.activation_fn = activation_fn
         if net_arch is not None:
             if isinstance(net_arch, list):
                 self.net_arch_pi = self.net_arch_vf = net_arch
@@ -171,7 +177,11 @@ class PPOPolicy(BaseJaxPolicy):
         # Initialize noise
         self.reset_noise()
 
-        obs = jnp.array([self.observation_space.sample()])
+        if isinstance(self.observation_space, spaces.Dict):
+            obs = jnp.array([spaces.flatten(self.observation_space, self.observation_space.sample())])
+        else:
+            obs = jnp.array([self.observation_space.sample()])
+        obs = jnp.atleast_2d(jnp.array(obs))        
 
         if isinstance(self.action_space, spaces.Box):
             actor_kwargs: dict[str, Any] = {
