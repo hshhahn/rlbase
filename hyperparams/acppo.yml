@@ -466,6 +466,7 @@ Hopper-v4:
   gae_lambda: 0.99
   max_grad_norm: 0.7
   vf_coef: 0.835671
+  chunk_size : 10
   policy_kwargs: "dict(
                     log_std_init=-2,
                     ortho_init=False,
